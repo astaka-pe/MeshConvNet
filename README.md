@@ -92,7 +92,7 @@ $$
 
 ## Settings
 
-Assign a 6-dimensional feature to each vertex and train MeshConv to restore an original mesh from an smoothed mesh.
+Assign a 6-dimensional feature to each vertex and train MeshConv to restore an original mesh from a smoothed mesh.
 Compare the performance between GCNConv and MeshConv.
 
 - Learning rate: 0.001
@@ -101,7 +101,7 @@ Compare the performance between GCNConv and MeshConv.
 
 ## Results
 
-- MeshConv outperform GCNConv.
+- MeshConv outperforms GCNConv.
 - MeshConv can restore bumpy-sphere (bottom) more accurately than GCNConv.
 
 <table>
