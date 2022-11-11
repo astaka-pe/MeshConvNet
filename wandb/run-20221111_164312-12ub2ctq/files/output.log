@@ -1,0 +1,21 @@
+
+epoch: 050 / loss: 0.045425
+epoch: 100 / loss: 0.024079
+epoch: 150 / loss: 0.016575
+epoch: 200 / loss: 0.013846
+epoch: 250 / loss: 0.011763
+epoch: 300 / loss: 0.011006
+epoch: 350 / loss: 0.010464
+epoch: 400 / loss: 0.009306
+epoch: 450 / loss: 0.008777
+epoch: 500 / loss: 0.008855
+epoch: 550 / loss: 0.008576
+epoch: 600 / loss: 0.008588
+epoch: 650 / loss: 0.007920
+epoch: 700 / loss: 0.007506
+epoch: 750 / loss: 0.007737
+epoch: 800 / loss: 0.007671
+epoch: 850 / loss: 0.007274
+epoch: 900 / loss: 0.007685
+epoch: 950 / loss: 0.007529
+epoch: 1000 / loss: 0.007452

@@ -1,0 +1,23 @@
+{
+    "os": "Linux-5.15.0-52-generic-x86_64-with-debian-bullseye-sid",
+    "python": "3.7.10",
+    "heartbeatAt": "2022-11-11T07:50:22.741949",
+    "startedAt": "2022-11-11T07:50:20.583805",
+    "docker": null,
+    "gpu": "NVIDIA GeForce GTX TITAN X",
+    "gpu_count": 2,
+    "cpu_count": 12,
+    "cuda": "9.0.176",
+    "args": [
+        "-i",
+        "data/bumpy_gt.obj",
+        "--smooth",
+        "data/bumpy_smooth.obj"
+    ],
+    "state": "running",
+    "program": "main.py",
+    "codePath": "main.py",
+    "host": "shota-X10SRA",
+    "username": "shota",
+    "executable": "/home/shota/miniconda3/envs/dmp/bin/python"
+}
