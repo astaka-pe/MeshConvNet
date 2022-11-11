@@ -7,9 +7,41 @@
 
 ## 動作環境
 ```
-torch
-torch_geometric
-scipy
+torch 1.7.0
+torch-geometric 1.7.1 
+scipy 1.6.2
+numpy 1.19.2
+```
+
+## 使用例
+```
+from util.layer import MeshConv
+
+class MeshNet(nn.Module):
+    def __init__(self, mesh):
+        super(MeshNet, self).__init__()
+        self.model = nn.Sequential(
+            MeshConv(6, 32, mesh),
+            nn.BatchNorm1d(32),
+            nn.LeakyReLU(),
+            MeshConv(32, 128, mesh),
+            nn.BatchNorm1d(128),
+            nn.LeakyReLU(),
+            MeshConv(128, 128, mesh),
+            nn.BatchNorm1d(128),
+            nn.LeakyReLU(),
+            MeshConv(128, 32, mesh),
+            nn.BatchNorm1d(32),
+            nn.LeakyReLU(),
+            MeshConv(32, 16, mesh),
+            nn.BatchNorm1d(16),
+            nn.LeakyReLU(),
+            nn.Linear(16, 3),
+        )
+
+    def forward(self, x):
+        out = self.model(x)
+        return out
 ```
 
 # GCNConv [ICLR2017] のまとめ
@@ -26,6 +58,7 @@ $$
 ### 変数の説明
 - $A \in \{0, 1\}^{n\times n} $: 隣接行列
 - $D \in \mathbb{R}^{n \times n}$: 次数（対角）行列
+- $L \in \mathbb{R}^{n \times n}$: [グラフラプラシアン行列](https://ja.wikipedia.org/wiki/%E3%83%A9%E3%83%97%E3%83%A9%E3%82%B7%E3%82%A2%E3%83%B3%E8%A1%8C%E5%88%97)
 - $\hat{L} = D^{-\frac{1}{2}} L D^{-\frac{1}{2}} = I_N - D^{-\frac{1}{2}} A D^{-\frac{1}{2}}$: 正規化ラプラシアン
 - $X \in \mathbb{R}^{n \times d}$: 頂点ごとの特徴ベクトル行列（層への入力）
 - $W \in \mathbb{R}^{d \times d^{\prime}}$: 学習されるパラメータ
@@ -40,7 +73,7 @@ $$
 
 # MeshConvへの拡張
 
-GCNConvでは，グラフの接続関係のみを考慮した正規化ラプラシアン$L$を用いているが，これを幾何形状を考慮したメッシュラプラシアン$M$に置き換える．
+GCNConvでは，グラフの接続関係のみを考慮した正規化ラプラシアン $L$ を用いているが，これを幾何形状を考慮したメッシュラプラシアン $M$ に置き換える．
 
 ## 変数
 - $M \in \mathbb{R}^{n \times n}$: メッシュラプラシアン行列
@@ -48,7 +81,7 @@ GCNConvでは，グラフの接続関係のみを考慮した正規化ラプラ�
 
 ## [メッシュラプラシアン](http://rodolphe-vaillant.fr/entry/101/definition-laplacian-matrix-for-triangle-meshes)
 
-- 図中ではメッシュラプラシアンを$L$で表記している．
+- 図中ではメッシュラプラシアンを $L$ で表記している．
 
 <img src="docs/meshlaplacian.png" width="700">
 

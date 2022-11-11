@@ -12,6 +12,37 @@ torch_geometric
 scipy
 ```
 
+## Usage
+```
+from util.layer import MeshConv
+
+class MeshNet(nn.Module):
+    def __init__(self, mesh):
+        super(MeshNet, self).__init__()
+        self.model = nn.Sequential(
+            MeshConv(6, 32, mesh),
+            nn.BatchNorm1d(32),
+            nn.LeakyReLU(),
+            MeshConv(32, 128, mesh),
+            nn.BatchNorm1d(128),
+            nn.LeakyReLU(),
+            MeshConv(128, 128, mesh),
+            nn.BatchNorm1d(128),
+            nn.LeakyReLU(),
+            MeshConv(128, 32, mesh),
+            nn.BatchNorm1d(32),
+            nn.LeakyReLU(),
+            MeshConv(32, 16, mesh),
+            nn.BatchNorm1d(16),
+            nn.LeakyReLU(),
+            nn.Linear(16, 3),
+        )
+
+    def forward(self, x):
+        out = self.model(x)
+        return out
+```
+
 # Review of GCNConv [ICLR2017] 
 ## Graph Convolutional Layer
 
@@ -65,7 +96,7 @@ Compare the performance between GCNConv and MeshConv.
 
 - Learning rate: 0.001
 - Epoch: 1000
-- Metrix: MSELoss of vertex position
+- Metrix $\epsilon$ : MSELoss of vertex position
 
 ## Results
 
