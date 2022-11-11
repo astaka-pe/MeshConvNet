@@ -3,13 +3,14 @@
 This page is under construction...
 # Mesh Convolutional Network
 
-The implementation of **Geometric-aware Mesh Convolutional Network** based on [Semi-Supervised Classification with Graph Convolutional Networks](http://arxiv.org/abs/1609.02907) [ICLR 2017].
+The implementation of **Geometry-aware Mesh Convolutional Network** based on [Semi-Supervised Classification with Graph Convolutional Networks](http://arxiv.org/abs/1609.02907) [ICLR 2017].
 
 ## Environment
 ```
-torch
-torch_geometric
-scipy
+torch 1.7.0
+torch-geometric 1.7.1 
+scipy 1.6.2
+numpy 1.19.2
 ```
 
 ## Usage
