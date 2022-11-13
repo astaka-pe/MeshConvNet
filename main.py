@@ -42,8 +42,8 @@ def main():
     x = torch.tensor(x, requires_grad=True).float().to(device)
     
     torch_fix_seed()
-    #net = MeshNet(mesh).to(device)
-    net = GCN(edge_index).to(device)
+    net = MeshNet(mesh).to(device)
+    #net = GCN(edge_index).to(device)
 
     optimizer = optim.Adam(net.parameters(), lr=0.001)
     mseloss = nn.MSELoss()

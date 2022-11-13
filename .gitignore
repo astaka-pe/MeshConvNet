@@ -1,4 +1,5 @@
-__pycache
+__pycache__
+util/__pycache__/
 *.obj
 data/output
 wandb

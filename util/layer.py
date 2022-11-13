@@ -14,6 +14,9 @@ class MeshConv(nn.Module):
         return out
     
     def _get_filter(self, mesh_lap):
-        doubleI = 2.0 * torch.eye(mesh_lap.shape[0])
-        F = (doubleI - mesh_lap).to_sparse()
+        lambda_max, _ = torch.lobpcg(mesh_lap, k=1)
+        F = 2.0 * mesh_lap / lambda_max[0] - torch.eye(mesh_lap.shape[0])
+        F = F.to_sparse()
+        #doubleI = 2.0 * torch.eye(mesh_lap.shape[0])
+        #F = (doubleI - L_norm).to_sparse()
         return F
