@@ -67,9 +67,12 @@ $$
 
 ### Intuitive understanding
 
-- $\hat{D}^{-\frac{1}{2}} \hat{A} \hat{D}^{-\frac{1}{2}} X$: Renormalization
-  - $\hat{A} = I + A$
-  - $\hat{D}_{ii} = \sum_{j}{\hat{A}_{ij}}$
+#### Renormalization
+$\hat{D}^{-\frac{1}{2}} \hat{A} \hat{D}^{-\frac{1}{2}} X$
+
+$\hat{A} = I + A$
+
+![\hat{D}_{ii} = \sum_{j}{\hat{A}_{ij}}](https://latex.codecogs.com/gif.latex?\hat{D}_{ii}=\sum_{j}{\hat{A}_{ij}})
 
 # Extention to Mesh Convolution
 
@@ -87,8 +90,10 @@ Replace **graph laplacian** $G$, which only encodes connectivity of mesh, to **m
 <img src="docs/meshlaplacian.png" width="700">
 
 ## Renormalization
-- $\hat{A} = I + A$
-- $\hat{D}_{ii} = \sum_{j}{\hat{A}_{ij}}$
+
+$\hat{A} = I + A$
+
+![\hat{D}_{ii} = \sum_{j}{\hat{A}_{ij}}](https://latex.codecogs.com/gif.latex?\hat{D}_{ii}=\sum_{j}{\hat{A}_{ij}})
 
 ## Mesh Convolution
 $$
