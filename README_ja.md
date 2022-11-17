@@ -1,4 +1,5 @@
 [[English]](README.md) [[日本語]](README_ja.md)
+
 # メッシュ畳み込みネットワーク (Mesh Convolutional Network)
 
 様々なGraph Neural Network(GNN)が揃ったライブラリとしてpytorch-geometricがあるが，メッシュデータのような幾何形状を考慮したGNNは実装されていない．そこで，本リポジトリではメッシュ用のGCN，メッシュ畳み込みネットワーク (Mesh Convolutional Network)を実装する．
@@ -49,9 +50,9 @@ class MeshNet(nn.Module):
 
 $$
 \begin{align}
-f(A,X;W) \rightarrow& \sigma((I_N + D^{-\frac{1}{2}} A D^{-\frac{1}{2}}) X W)\\
-=& \sigma((2I_N - \hat{L}) X W)\\
-=& \sigma(\hat{D}^{-\frac{1}{2}} \hat{A} \hat{D}^{-\frac{1}{2}} X W)
+f(A,X;W) =& \sigma((I_N + D^{-\frac{1}{2}} A D^{-\frac{1}{2}}) X W)\\
+% =& \sigma((2I_N - \hat{L}) X W)\\
+\rightarrow& \sigma(\hat{D}^{-\frac{1}{2}} \hat{A} \hat{D}^{-\frac{1}{2}} X W)
 \end{align}
 $$
 
@@ -59,35 +60,51 @@ $$
 - $A \in \{0, 1\}^{n\times n} $: 隣接行列
 - $D \in \mathbb{R}^{n \times n}$: 次数（対角）行列
 - $L \in \mathbb{R}^{n \times n}$: [グラフラプラシアン行列](https://ja.wikipedia.org/wiki/%E3%83%A9%E3%83%97%E3%83%A9%E3%82%B7%E3%82%A2%E3%83%B3%E8%A1%8C%E5%88%97)
-- $\hat{L} = D^{-\frac{1}{2}} L D^{-\frac{1}{2}} = I_N - D^{-\frac{1}{2}} A D^{-\frac{1}{2}}$: 正規化ラプラシアン
+- $L^{sym} = D^{-\frac{1}{2}} L D^{-\frac{1}{2}} = I_N - D^{-\frac{1}{2}} A D^{-\frac{1}{2}}$: 対称正規化ラプラシアン
+  - その固有値は， $0=\mu_0 \le \cdots \le \mu_{n-1} = \lambda_{max} \le 2$ を満たす
+- $\hat{L} = \frac{2}{\lambda_{max}} L^{sym} - I_N$
+  - 固有値は$[-1,1]$に収まる
 - $X \in \mathbb{R}^{n \times d}$: 頂点ごとの特徴ベクトル行列（層への入力）
 - $W \in \mathbb{R}^{d \times d^{\prime}}$: 学習されるパラメータ
 - $\sigma$: 活性化関数（ReLU，softmaxなど）
 
-### グラフ畳み込みでやっていること
+### グラフ畳み込みの直感的な理解
 - $AX$: 近傍ノードの特徴ベクトルの総和
     - 自身のノード特徴が消えてしまう → **自身へのループ**を加えれば良い
 - $(I_N+A)X$: 自身のノードも含めた近傍ノードの特徴ベクトルの総和
     - 次数が高いほど近傍ノードの特徴量が加算される → **正規化**が必要
 - $(I_N+D^{-\frac{1}{2}} A D^{-\frac{1}{2}})X$: 隣接行列の各行の重みをノード次数で割ることで正規化
+  <!-- - 正規化ラプラシアンを用いて書き換えると， $(2I_N - \hat{L})X$ -->
+  - この固有値の範囲は， $[0,2]$ なので，このまま畳み込み層を繰り返すと数値的に不安定になり，勾配爆発を引き起こす
+  → **再正規化（renormalization）が必要**
+- $\hat{D}^{-\frac{1}{2}} \hat{A} \hat{D}^{-\frac{1}{2}} X$: 再正規化
+  - $\hat{A} = I + A, \hat{D}_{ii} = \sum_{j}{\hat{A}_{ij}}$ と置き換えると， $\hat{D}^{-\frac{1}{2}} \hat{A} \hat{D}^{-\frac{1}{2}}$ の固有値は $[-1,1]$ に収まる
 
-# MeshConvへの拡張
+# Mesh Convolutionへの拡張
 
 GCNConvでは，グラフの接続関係のみを考慮した正規化ラプラシアン $L$ を用いているが，これを幾何形状を考慮したメッシュラプラシアン $M$ に置き換える．
 
 ## 変数
-- $M \in \mathbb{R}^{n \times n}$: メッシュラプラシアン行列
-- $\hat{M} = D^{-\frac{1}{2}} M D^{-\frac{1}{2}}$: 正規化メッシュラプラシアン行列
+- $L \in \mathbb{R}^{n \times n}$: メッシュラプラシアン行列
+- $D_{ii} = L_{ii}$: 擬似次数行列（対角成分は連続値をとる）
+- $A = D - L$: 擬似隣接行列（行列成分は連続値をとる）
+<!-- - $\hat{M} = D^{-\frac{1}{2}} M D^{-\frac{1}{2}}$: 正規化メッシュラプラシアン行列 -->
 
-## [メッシュラプラシアン](http://rodolphe-vaillant.fr/entry/101/definition-laplacian-matrix-for-triangle-meshes)
-
-- 図中ではメッシュラプラシアンを $L$ で表記している．
+### [メッシュラプラシアン](http://rodolphe-vaillant.fr/entry/101/definition-laplacian-matrix-for-triangle-meshes)
 
 <img src="docs/meshlaplacian.png" width="700">
 
+## 正規化
+- $\hat{A} = I + A$
+- $\hat{D}_{ii} = \sum_{j}{\hat{A}_{ij}}$
+
+## メッシュ畳み込み
+
 $$
 \begin{align}
-f(A,X;W) \rightarrow& \sigma((2I_N - \hat{M}) X W)
+f(A,X;W) =& \sigma((I_N + D^{-\frac{1}{2}} A D^{-\frac{1}{2}}) X W)\\
+% =& \sigma((2I_N - \hat{L}) X W)\\
+\rightarrow& \sigma(\hat{D}^{-\frac{1}{2}} \hat{A} \hat{D}^{-\frac{1}{2}} X W)
 \end{align}
 $$
 

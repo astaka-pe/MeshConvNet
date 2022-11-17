@@ -5,7 +5,7 @@ import torch.nn as nn
 class MeshConv(nn.Module):
     def __init__(self, in_channels, out_channels, mesh, device="cuda:0"):
         super(MeshConv, self).__init__()
-        self.F = self._get_filter(mesh.L).float().to(device)
+        self.F = mesh.meshconvF.to(device)
         self.w = nn.Linear(in_channels, out_channels)
     
     def forward(self, x):
@@ -17,6 +17,4 @@ class MeshConv(nn.Module):
         lambda_max, _ = torch.lobpcg(mesh_lap, k=1)
         F = 2.0 * mesh_lap / lambda_max[0] - torch.eye(mesh_lap.shape[0])
         F = F.to_sparse()
-        #doubleI = 2.0 * torch.eye(mesh_lap.shape[0])
-        #F = (doubleI - L_norm).to_sparse()
         return F

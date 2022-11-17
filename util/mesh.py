@@ -172,16 +172,26 @@ class Mesh:
             C_val.append(e_dict[e])
             ident[e[0]] += -1.0 * e_dict[e]
             ident[e[1]] += -1.0 * e_dict[e]
+        Am_ind = torch.LongTensor(C_ind)
+        Am_val = -1.0 * torch.FloatTensor(C_val)
+        self.Am = torch.sparse.FloatTensor(Am_ind, Am_val, torch.Size([len(vs), len(vs)]))
+
         for i in range(len(vs)):
             C_ind[0].append(i)
             C_ind[1].append(i)
+        
         C_val = C_val + ident
         C_ind = torch.LongTensor(C_ind)
         C_val = torch.FloatTensor(C_val)
         # cotangent matrix
-        C = torch.sparse.FloatTensor(C_ind, C_val, torch.Size([len(vs), len(vs)]))
-        self.L = torch.sparse.mm(self.D_minus_half, torch.sparse.mm(C, self.D_minus_half.to_dense()))
-         
+        self.Lm = torch.sparse.FloatTensor(C_ind, C_val, torch.Size([len(vs), len(vs)]))
+        self.Dm = torch.diag(torch.tensor(ident)).float().to_sparse()
+        self.Lm_sym = torch.sparse.mm(torch.pow(self.Dm, -0.5), torch.sparse.mm(self.Lm, torch.pow(self.Dm, -0.5).to_dense())).to_sparse()
+        #self.L = torch.sparse.mm(self.D_minus_half, torch.sparse.mm(C, self.D_minus_half.to_dense()))
+        self.Am_I = (torch.eye(len(vs)) + self.Am).to_sparse()
+        Dm_I_diag = torch.sum(self.Am_I.to_dense(), dim=1)
+        self.Dm_I = torch.diag(Dm_I_diag).to_sparse()
+        self.meshconvF = torch.sparse.mm(torch.pow(self.Dm_I, -0.5), torch.sparse.mm(self.Am_I, torch.pow(self.Dm_I, -0.5).to_dense())).to_sparse()
         
     def save(self, filename):
         assert len(self.vs) > 0

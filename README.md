@@ -49,9 +49,9 @@ class MeshNet(nn.Module):
 
 $$
 \begin{align}
-f(A,X;W) \rightarrow& \sigma((I_N + D^{-\frac{1}{2}} A D^{-\frac{1}{2}}) X W)\\
-=& \sigma((2I_N - \hat{L}) X W)\\
-=& \sigma(\hat{D}^{-\frac{1}{2}} \hat{A} \hat{D}^{-\frac{1}{2}} X W)
+f(A,X;W) =& \sigma((I_N + D^{-\frac{1}{2}} A D^{-\frac{1}{2}}) X W)\\
+% =& \sigma((2I_N - \hat{L}) X W)\\
+\rightarrow& \sigma(\hat{D}^{-\frac{1}{2}} \hat{A} \hat{D}^{-\frac{1}{2}} X W)
 \end{align}
 $$
 
@@ -59,32 +59,43 @@ $$
 - $A \in \{0, 1\}^{n\times n} $: Adjacency matrix
 - $D \in \mathbb{R}^{n \times n}$: Degree matrix
 - $L \in \mathbb{R}^{n \times n}$: Graph Laplacian matrix 
-- $\hat{L} = D^{-\frac{1}{2}} L D^{-\frac{1}{2}} = I_N - D^{-\frac{1}{2}} A D^{-\frac{1}{2}}$: Symmetrically normalized graph Laplacian
+- $L^{sym} = D^{-\frac{1}{2}} L D^{-\frac{1}{2}} = I_N - D^{-\frac{1}{2}} A D^{-\frac{1}{2}}$: Symmetrically normalized graph Laplacian
+- $\hat{L} = \frac{2}{\lambda_{max}} L^{sym} - I_N$: Scaled graph Laplcian
 - $X \in \mathbb{R}^{n \times d}$: Vertex feature matrix (Input to each layer)
 - $W \in \mathbb{R}^{d \times d^{\prime}}$: Learnable weight matrix
 - $\sigma$: Activation function (ex. ReLU, softmax)
 
 ### Intuitive understanding
 
-coming soon...
+- $\hat{D}^{-\frac{1}{2}} \hat{A} \hat{D}^{-\frac{1}{2}} X$: Renormalization
+  - $\hat{A} = I + A$
+  - $\hat{D}_{ii} = \sum_{j}{\hat{A}_{ij}}$
 
 # Extention to Mesh Convolution
 
 Replace **graph laplacian** $G$, which only encodes connectivity of mesh, to **mesh laplacian** $M$, which also encodes geometry of mesh.
 
 ## Variable
-- $M \in \mathbb{R}^{n \times n}$: Mesh Laplacian matrix
-- $\hat{M} = D^{-\frac{1}{2}} M D^{-\frac{1}{2}}$: Symmetrically normalized mesh Laplacian
+<!-- - $M \in \mathbb{R}^{n \times n}$: Mesh Laplacian matrix
+- $\hat{M} = D^{-\frac{1}{2}} M D^{-\frac{1}{2}}$: Symmetrically normalized mesh Laplacian -->
+- $L \in \mathbb{R}^{n \times n}$: Mesh Laplacian matrix
+- $D_{ii} = L_{ii}$: Degree matrix (continuous)
+- $A = D - L$: Adjacency matrix (continuous)
 
 ## [Mesh Laplacian](http://rodolphe-vaillant.fr/entry/101/definition-laplacian-matrix-for-triangle-meshes)
 
-- Mesh Laplacian is defined as $L$ in the figure below．
-
 <img src="docs/meshlaplacian.png" width="700">
 
+## Renormalization
+- $\hat{A} = I + A$
+- $\hat{D}_{ii} = \sum_{j}{\hat{A}_{ij}}$
+
+## Mesh Convolution
 $$
 \begin{align}
-f(A,X;W) \rightarrow& \sigma((2I_N - \hat{M}) X W)
+f(A,X;W) =& \sigma((I_N + D^{-\frac{1}{2}} A D^{-\frac{1}{2}}) X W)\\
+% =& \sigma((2I_N - \hat{L}) X W)\\
+\rightarrow& \sigma(\hat{D}^{-\frac{1}{2}} \hat{A} \hat{D}^{-\frac{1}{2}} X W)
 \end{align}
 $$
 
