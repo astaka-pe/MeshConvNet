@@ -192,7 +192,23 @@ class Mesh:
         Dm_I_diag = torch.sum(self.Am_I.to_dense(), dim=1)
         self.Dm_I = torch.diag(Dm_I_diag).to_sparse()
         self.meshconvF = torch.sparse.mm(torch.pow(self.Dm_I, -0.5), torch.sparse.mm(self.Am_I, torch.pow(self.Dm_I, -0.5).to_dense())).to_sparse()
-        
+    
+    def get_chebconv_coef(self, k=2):
+        coef_list = []
+        eig_max = torch.lobpcg(self.Lm_sym, k=1)[0][0]
+        Lm_hat = -1.0 * torch.eye(len(self.vs)) + 2.0 * self.Lm_sym / eig_max.item()
+        self.Lm_hat = Lm_hat.to_sparse()
+        for i in range(k):
+            if i == 0:
+                coef = torch.eye(len(self.vs)).to_sparse()
+                coef_list.append(coef)
+            elif i == 1:
+                coef_list.append(self.Lm_hat)
+            else:
+                coef = 2.0 * torch.sparse.mm(self.Lm_hat, coef_list[-1].to_dense()) - coef_list[-2]
+                coef_list.append(coef.to_sparse())
+        return coef_list
+
     def save(self, filename):
         assert len(self.vs) > 0
         vertices = np.array(self.vs, dtype=np.float32).flatten()

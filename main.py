@@ -8,7 +8,7 @@ import random
 import wandb
 
 from util.mesh import Mesh
-from util.model import MeshNet, GCN
+from util.model import MeshNet, ChebMeshNet, GCN
 
 def get_parser():
     parser = argparse.ArgumentParser(description="MeshConv")
@@ -42,7 +42,8 @@ def main():
     x = torch.tensor(x, requires_grad=True).float().to(device)
     
     torch_fix_seed()
-    net = MeshNet(mesh).to(device)
+    # net = MeshNet(mesh).to(device)
+    net = ChebMeshNet(mesh).to(device)
     #net = GCN(edge_index).to(device)
 
     optimizer = optim.Adam(net.parameters(), lr=0.001)

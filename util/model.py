@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 from torch_geometric.nn import GCNConv, Sequential
 
-from util.layer import MeshConv
+from util.layer import MeshConv, ChebMeshConv
 
 
 class MeshNet(nn.Module):
@@ -31,6 +31,31 @@ class MeshNet(nn.Module):
         out = self.model(x)
         return out
 
+class ChebMeshNet(nn.Module):
+    def __init__(self, mesh):
+        super(ChebMeshNet, self).__init__()
+        self.model = nn.Sequential(
+            ChebMeshConv(6, 32, mesh, k=3),
+            nn.BatchNorm1d(32),
+            nn.LeakyReLU(),
+            ChebMeshConv(32, 128, mesh, k=3),
+            nn.BatchNorm1d(128),
+            nn.LeakyReLU(),
+            ChebMeshConv(128, 128, mesh, k=3),
+            nn.BatchNorm1d(128),
+            nn.LeakyReLU(),
+            ChebMeshConv(128, 32, mesh, k=3),
+            nn.BatchNorm1d(32),
+            nn.LeakyReLU(),
+            ChebMeshConv(32, 16, mesh, k=3),
+            nn.BatchNorm1d(16),
+            nn.LeakyReLU(),
+            nn.Linear(16, 3),
+        )
+
+    def forward(self, x):
+        out = self.model(x)
+        return out
 
 class GCN(nn.Module):
     def __init__(self, edge_index):
